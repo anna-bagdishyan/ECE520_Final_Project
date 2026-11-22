@@ -17,11 +17,11 @@ if {$board_part ne ""} {
 
 set src_files [glob -nocomplain [file join $repo_dir src *.v]]
 add_files -norecurse $src_files
-set_property top servo_controller [current_fileset]
+set_property top joystick [current_fileset]
 
 set sim_files [glob -nocomplain [file join $repo_dir sim *.v]]
 add_files -fileset sim_1 -norecurse $sim_files
-set_property top tb_servo [get_filesets sim_1]
+set_property top tb_spi_master [get_filesets sim_1]
 
 # Add constraints
 set xdc_file [file join $repo_dir constraints zybo_z7.xdc]

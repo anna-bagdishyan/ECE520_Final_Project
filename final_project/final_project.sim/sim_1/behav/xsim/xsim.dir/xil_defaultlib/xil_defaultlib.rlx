@@ -1,0 +1,11 @@
+0.7
+2020.2
+May  7 2023
+15:24:31
+C:/ECE520/Vivado/ECE520_Final_Project/final_project/final_project.sim/sim_1/behav/xsim/glbl.v,1683266558,verilog,,,,glbl,,,,,,,,
+C:/ECE520/Vivado/ECE520_Final_Project/sim/tb_spi_master.v,1795332816,verilog,,,,tb_spi_master,,,,,,,,
+C:/ECE520/Vivado/ECE520_Final_Project/src/spi_clk_div.v,1795330692,verilog,,C:/ECE520/Vivado/ECE520_Final_Project/src/spi_cs_ctrl.v,,spi_clk_div,,,,,,,,
+C:/ECE520/Vivado/ECE520_Final_Project/src/spi_cs_ctrl.v,1795332819,verilog,,C:/ECE520/Vivado/ECE520_Final_Project/src/spi_fsm.v,,spi_cs_ctrl,,,,,,,,
+C:/ECE520/Vivado/ECE520_Final_Project/src/spi_fsm.v,1795332818,verilog,,C:/ECE520/Vivado/ECE520_Final_Project/src/spi_master.v,,spi_fsm,,,,,,,,
+C:/ECE520/Vivado/ECE520_Final_Project/src/spi_master.v,1795332817,verilog,,C:/ECE520/Vivado/ECE520_Final_Project/src/spi_shift_reg.v,,spi_master,,,,,,,,
+C:/ECE520/Vivado/ECE520_Final_Project/src/spi_shift_reg.v,1795334173,verilog,,C:/ECE520/Vivado/ECE520_Final_Project/sim/tb_spi_master.v,,spi_shift_reg,,,,,,,,

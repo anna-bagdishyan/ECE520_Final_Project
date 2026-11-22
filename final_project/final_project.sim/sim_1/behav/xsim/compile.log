@@ -1,0 +1,12 @@
+INFO: [VRFC 10-2263] Analyzing Verilog file "C:/ECE520/Vivado/ECE520_Final_Project/src/spi_clk_div.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module spi_clk_div
+INFO: [VRFC 10-2263] Analyzing Verilog file "C:/ECE520/Vivado/ECE520_Final_Project/src/spi_cs_ctrl.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module spi_cs_ctrl
+INFO: [VRFC 10-2263] Analyzing Verilog file "C:/ECE520/Vivado/ECE520_Final_Project/src/spi_fsm.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module spi_fsm
+INFO: [VRFC 10-2263] Analyzing Verilog file "C:/ECE520/Vivado/ECE520_Final_Project/src/spi_master.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module spi_master
+INFO: [VRFC 10-2263] Analyzing Verilog file "C:/ECE520/Vivado/ECE520_Final_Project/src/spi_shift_reg.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module spi_shift_reg
+INFO: [VRFC 10-2263] Analyzing Verilog file "C:/ECE520/Vivado/ECE520_Final_Project/sim/tb_spi_master.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module tb_spi_master

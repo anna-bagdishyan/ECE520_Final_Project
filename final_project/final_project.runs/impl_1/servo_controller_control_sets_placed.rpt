@@ -1,0 +1,95 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2023 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2023.1 (win64) Build 3865809 Sun May  7 15:05:29 MDT 2023
+| Date         : Sun Nov 22 11:09:18 2026
+| Host         : MSI running 64-bit major release  (build 9200)
+| Command      : report_control_sets -verbose -file servo_controller_control_sets_placed.rpt
+| Design       : servo_controller
+| Device       : xc7z010
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+Control Set Information
+
+Table of Contents
+-----------------
+1. Summary
+2. Histogram
+3. Flip-Flop Distribution
+4. Detailed Control Set Information
+
+1. Summary
+----------
+
++----------------------------------------------------------+-------+
+|                          Status                          | Count |
++----------------------------------------------------------+-------+
+| Total control sets                                       |    17 |
+|    Minimum number of control sets                        |    17 |
+|    Addition due to synthesis replication                 |     0 |
+|    Addition due to physical synthesis replication        |     0 |
+| Unused register locations in slices containing registers |    68 |
++----------------------------------------------------------+-------+
+* Control sets can be merged at opt_design using control_set_merge or merge_equivalent_drivers
+** Run report_qor_suggestions for automated merging and remapping suggestions
+
+
+2. Histogram
+------------
+
++--------------------+-------+
+|       Fanout       | Count |
++--------------------+-------+
+| Total control sets |    17 |
+| >= 0 to < 4        |     3 |
+| >= 4 to < 6        |     0 |
+| >= 6 to < 8        |     2 |
+| >= 8 to < 10       |     2 |
+| >= 10 to < 12      |     0 |
+| >= 12 to < 14      |     1 |
+| >= 14 to < 16      |     0 |
+| >= 16              |     9 |
++--------------------+-------+
+* Control sets can be remapped at either synth_design or opt_design
+
+
+3. Flip-Flop Distribution
+-------------------------
+
++--------------+-----------------------+------------------------+-----------------+--------------+
+| Clock Enable | Synchronous Set/Reset | Asynchronous Set/Reset | Total Registers | Total Slices |
++--------------+-----------------------+------------------------+-----------------+--------------+
+| No           | No                    | No                     |               3 |            1 |
+| No           | No                    | Yes                    |               0 |            0 |
+| No           | Yes                   | No                     |              81 |           25 |
+| Yes          | No                    | No                     |               3 |            1 |
+| Yes          | No                    | Yes                    |               0 |            0 |
+| Yes          | Yes                   | No                     |             149 |           45 |
++--------------+-----------------------+------------------------+-----------------+--------------+
+
+
+4. Detailed Control Set Information
+-----------------------------------
+
++-------------------+------------------------------------------------+---------------------------------------------------------+------------------+----------------+--------------+
+|    Clock Signal   |                  Enable Signal                 |                     Set/Reset Signal                    | Slice Load Count | Bel Load Count | Bels / Slice |
++-------------------+------------------------------------------------+---------------------------------------------------------+------------------+----------------+--------------+
+|  sysclk_IBUF_BUFG | joystick_inst/spi_inst/u_fsm/assert_cs         | joystick_inst/spi_inst/u_fsm/deassert_cs_reg_0          |                1 |              1 |         1.00 |
+|  sysclk_IBUF_BUFG | joystick_inst/spi_inst/u_fsm/sclk_i_1_n_0      | btn0_IBUF                                               |                1 |              1 |         1.00 |
+|  sysclk_IBUF_BUFG |                                                |                                                         |                1 |              3 |         3.00 |
+|  sysclk_IBUF_BUFG | joystick_inst/spi_inst/u_clk_div/rise_en_reg_0 |                                                         |                1 |              6 |         6.00 |
+|  sysclk_IBUF_BUFG | joystick_inst/spi_inst/u_fsm/counter           | btn0_IBUF                                               |                2 |              6 |         3.00 |
+|  sysclk_IBUF_BUFG |                                                | joystick_inst/spi_inst/u_fsm/SR[0]                      |                2 |              8 |         4.00 |
+|  sysclk_IBUF_BUFG |                                                | btn0_IBUF                                               |                4 |              9 |         2.25 |
+|  sysclk_IBUF_BUFG | joystick_inst/spi_inst/u_fsm/delay_count_0     | btn0_IBUF                                               |                6 |             12 |         2.00 |
+|  sysclk_IBUF_BUFG | joystick_inst/shoulder_pulse_width             | btn0_IBUF                                               |                6 |             20 |         3.33 |
+|  sysclk_IBUF_BUFG | joystick_inst/spi_inst/u_fsm/latch_rx_reg_0[0] | btn0_IBUF                                               |                6 |             20 |         3.33 |
+|  sysclk_IBUF_BUFG | joystick_inst/base_pulse_width                 | btn0_IBUF                                               |                6 |             20 |         3.33 |
+|  sysclk_IBUF_BUFG | joystick_inst/claw_pulse_width                 | btn0_IBUF                                               |                6 |             20 |         3.33 |
+|  sysclk_IBUF_BUFG |                                                | joystick_inst/timer[0]_i_1_n_0                          |                6 |             21 |         3.50 |
+|  sysclk_IBUF_BUFG |                                                | movement_timer[0]_i_1_n_0                               |                6 |             21 |         3.50 |
+|  sysclk_IBUF_BUFG | joystick_inst/spi_inst/u_fsm/E[0]              | btn0_IBUF                                               |                6 |             21 |         3.50 |
+|  sysclk_IBUF_BUFG |                                                | counter_inst/counter[21]_i_1_n_0                        |                7 |             22 |         3.14 |
+|  sysclk_IBUF_BUFG | joystick_inst/spi_inst/u_clk_div/rise_en_reg_0 | joystick_inst/spi_inst/u_shift_reg/rx_shift[39]_i_1_n_0 |                5 |             28 |         5.60 |
++-------------------+------------------------------------------------+---------------------------------------------------------+------------------+----------------+--------------+
+
+
