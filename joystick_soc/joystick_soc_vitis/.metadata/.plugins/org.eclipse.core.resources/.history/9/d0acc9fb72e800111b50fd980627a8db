@@ -1,0 +1,128 @@
+#include <stdio.h>
+#include <stdint.h>
+#include "platform.h"
+#include "xil_printf.h"
+#include "xparameters.h"
+#include "xil_io.h"
+#include "sleep.h"
+
+// base address for custom AXI peripheral
+#define JOYSTICK_BASE_ADDR (0x43C00000)
+
+// AXI register addresses
+#define REV_REG_ADDR      (JOYSTICK_BASE_ADDR + 0x00)
+#define CTRL_REG_ADDR     (JOYSTICK_BASE_ADDR + 0x04)
+#define STATUS_REG_ADDR   (JOYSTICK_BASE_ADDR + 0x08)
+#define X_REG_ADDR        (JOYSTICK_BASE_ADDR + 0x0C)
+#define Y_REG_ADDR        (JOYSTICK_BASE_ADDR + 0x10)
+#define SWITCH_REG_ADDR   (JOYSTICK_BASE_ADDR + 0x14)
+#define BASE_PWM_REG_ADDR (JOYSTICK_BASE_ADDR + 0x18)
+#define SH_PWM_REG_ADDR   (JOYSTICK_BASE_ADDR + 0x1C)
+#define CLAW_PWM_REG_ADDR (JOYSTICK_BASE_ADDR + 0x20)
+
+// servo pulse width values at 125 MHz
+#define MIN_PULSE     112500
+#define MAX_PULSE     262500
+#define CENTER_PULSE  187500
+#define STEP          2500
+
+// joystick SPI status
+#define JOYSTICK_RECEIVED 0x2
+
+// physical switches and reset button
+#define BASE_SW       0x1
+#define SHOULDER_SW   0x2
+#define CLAW_SW       0x4
+#define RESET_BTN     0x8
+
+int main()
+{
+    init_platform();
+
+    xil_printf("ECE 520/L - Robotic Arm Custom AXI IP\n");
+
+    uint32_t x_value;
+    uint32_t y_value;
+    uint32_t switches;
+    uint32_t status;
+    uint32_t base_width;
+    uint32_t shoulder_width;
+    uint32_t claw_width;
+    uint32_t print_count = 0;
+
+    // enabling joystick sampling
+    Xil_Out32(CTRL_REG_ADDR, 1);
+
+    while (1)
+    {
+        // read joystick values
+        x_value = Xil_In32(X_REG_ADDR);
+        y_value = Xil_In32(Y_REG_ADDR);
+
+        // read switches and SPI status
+        switches = Xil_In32(SWITCH_REG_ADDR);
+        status = Xil_In32(STATUS_REG_ADDR);
+
+        // read current servo pulse widths
+        base_width = Xil_In32(BASE_PWM_REG_ADDR);
+        shoulder_width = Xil_In32(SH_PWM_REG_ADDR);
+        claw_width = Xil_In32(CLAW_PWM_REG_ADDR);
+
+        // only update after receiving joystick data
+        // BTN0 resets pulse widths
+        if ((status & JOYSTICK_RECEIVED) && !(switches & RESET_BTN))
+        {
+            // SW0 - Base servo controlled by X
+            if (switches & BASE_SW)
+            {
+                if (x_value > 624 && base_width <= MAX_PULSE - STEP)
+                    base_width += STEP;
+                else if (x_value < 400 && base_width >= MIN_PULSE + STEP)
+                    base_width -= STEP;
+            }
+
+            // SW1 - Shoulder servo controlled by Y
+            if (switches & SHOULDER_SW)
+            {
+                if (y_value > 624 && shoulder_width <= MAX_PULSE - STEP)
+                    shoulder_width += STEP;
+                else if (y_value < 400 && shoulder_width >= MIN_PULSE + STEP)
+                    shoulder_width -= STEP;
+            }
+
+            // SW2 - Claw servo controlled by Y
+            if (switches & CLAW_SW)
+            {
+                if (y_value > 624 && claw_width <= MAX_PULSE - STEP)
+                    claw_width += STEP;
+                else if (y_value < 400 && claw_width >= MIN_PULSE + STEP)
+                    claw_width -= STEP;
+            }
+
+            // write pulse widths to AXI registers
+            Xil_Out32(BASE_PWM_REG_ADDR, base_width);
+            Xil_Out32(SH_PWM_REG_ADDR, shoulder_width);
+            Xil_Out32(CLAW_PWM_REG_ADDR, claw_width);
+        }
+
+        // print joystick and servo values every 20 updates
+        print_count++;
+
+        if (print_count >= 20)
+        {
+            print_count = 0;
+
+            xil_printf("X: %d Y: %d SW: 0x%x\n",
+                       x_value, y_value, switches);
+
+            xil_printf("Base: %d Shoulder: %d Claw: %d\n",
+                       base_width, shoulder_width, claw_width);
+        }
+
+        // delay 10 ms b/w servo position updates
+        usleep(10000);
+    }
+
+    cleanup_platform();
+    return 0;
+}

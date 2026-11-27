@@ -1,0 +1,5 @@
+vhdl xil_defaultlib  \
+"../../../bd/joystick_bd/ip/joystick_bd_rst_ps7_0_125M_0/sim/joystick_bd_rst_ps7_0_125M_0.vhd" \
+
+# Do not sort compile order
+nosort

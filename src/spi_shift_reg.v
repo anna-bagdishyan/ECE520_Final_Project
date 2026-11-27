@@ -1,16 +1,16 @@
 //////////////////////////////////////////////////////////////////////////////////
-// Title      : CSUN ECE 520 Design Project 1
-// Project    : Design Project 1
+// Title      : CSUN ECE 520 Final Project
+// Project    : Robot Arm
 //////////////////////////////////////////////////////////////////////////////////
 // File       : spi_shift_reg.v<spi_shift_reg.srcs>
-// Author     : Anna Bagdishyan 203475460
+// Author     : Anna Bagdishyan and Mario Perez
 // Company    : CSUN
-// Created    : 2026-11-13
-// Last update: 2026-11-15
+// Created    : 2026-11-18
+// Last update: 2026-11-22
 // Platform   :
 // Standard   : Verilog
 //////////////////////////////////////////////////////////////////////////////////
-// Description: Top file for spi_shift_reg.v
+// Description: Shift register module for the SPI master.
 //////////////////////////////////////////////////////////////////////////////////
 
 `timescale 1ns / 1ps

@@ -1,0 +1,108 @@
+
+#include "platform.h"
+#include "xil_printf.h"
+#include "xil_io.h"
+#include "sleep.h"
+
+// Custom AXI peripheral
+#define JOYSTICK_BASE 0x43C00000
+
+// AXI registers
+#define CTRL_REG       (JOYSTICK_BASE + 0x04)
+#define STATUS_REG     (JOYSTICK_BASE + 0x08)
+#define X_REG          (JOYSTICK_BASE + 0x0C)
+#define Y_REG          (JOYSTICK_BASE + 0x10)
+#define SWITCH_REG     (JOYSTICK_BASE + 0x14)
+#define BASE_PWM_REG   (JOYSTICK_BASE + 0x18)
+#define SHOULDER_REG   (JOYSTICK_BASE + 0x1C)
+#define CLAW_REG       (JOYSTICK_BASE + 0x20)
+
+// HS-485HB servo settings at 125 MHz
+#define MIN_PULSE     112500
+#define MAX_PULSE     262500
+#define CENTER_PULSE  187500
+#define STEP          2500
+
+int main()
+{
+    unsigned int x_value, y_value;
+    unsigned int switches, status;
+    unsigned int base_width, shoulder_width, claw_width;
+    unsigned int print_timer = 0;
+
+    init_platform();
+
+    xil_printf("Robotic Arm AXI Controller\r\n");
+
+    // Enable joystick sampling
+    Xil_Out32(CTRL_REG, 1);
+
+    while (1)
+    {
+        // Read joystick and switch values
+        x_value = Xil_In32(X_REG);
+        y_value = Xil_In32(Y_REG);
+        switches = Xil_In32(SWITCH_REG);
+        status = Xil_In32(STATUS_REG);
+
+        // Read current servo pulse widths
+        base_width = Xil_In32(BASE_PWM_REG);
+        shoulder_width = Xil_In32(SHOULDER_REG);
+        claw_width = Xil_In32(CLAW_REG);
+
+        // Only move after receiving joystick data
+        // BTN0 resets servo registers in hardware
+        if ((status & 0x2) && !(switches & 0x8))
+        {
+            // SW0 - Base servo (X-axis)
+            if (switches & 0x1)
+            {
+                if (x_value > 624 && base_width <= MAX_PULSE - STEP)
+                    base_width += STEP;
+                else if (x_value < 400 && base_width >= MIN_PULSE + STEP)
+                    base_width -= STEP;
+            }
+
+            // SW1 - Shoulder servo (Y-axis)
+            if (switches & 0x2)
+            {
+                if (y_value > 624 && shoulder_width <= MAX_PULSE - STEP)
+                    shoulder_width += STEP;
+                else if (y_value < 400 && shoulder_width >= MIN_PULSE + STEP)
+                    shoulder_width -= STEP;
+            }
+
+            // SW2 - Claw servo (Y-axis)
+            if (switches & 0x4)
+            {
+                if (y_value > 624 && claw_width <= MAX_PULSE - STEP)
+                    claw_width += STEP;
+                else if (y_value < 400 && claw_width >= MIN_PULSE + STEP)
+                    claw_width -= STEP;
+            }
+
+            // Write updated pulse widths through AXI
+            Xil_Out32(BASE_PWM_REG, base_width);
+            Xil_Out32(SHOULDER_REG, shoulder_width);
+            Xil_Out32(CLAW_REG, claw_width);
+        }
+
+        // Display information approximately every 200 ms
+        if (++print_timer >= 20)
+        {
+            print_timer = 0;
+
+            xil_printf("X:%d Y:%d SW:0x%x\r\n",
+                       x_value, y_value, switches);
+
+            xil_printf("Base:%d Shoulder:%d Claw:%d\r\n",
+                       base_width, shoulder_width, claw_width);
+        }
+
+        // Approximately 10 ms movement update interval
+        usleep(10000);
+    }
+
+    cleanup_platform();
+    return 0;
+}

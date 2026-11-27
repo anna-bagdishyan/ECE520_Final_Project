@@ -1,9 +1,24 @@
+//////////////////////////////////////////////////////////////////////////////////
+// Title      : CSUN ECE 520 Final Project
+// Project    : Robot Arm
+//////////////////////////////////////////////////////////////////////////////////
+// File       : joystick.v<joystick.srcs>
+// Author     : Anna Bagdishyan and Mario Perez
+// Company    : CSUN
+// Created    : 2026-11-18
+// Last update: 2026-11-22
+// Platform   :
+// Standard   : Verilog
+//////////////////////////////////////////////////////////////////////////////////
+// Description: Joystick controller module for reading X and Y positions.
+//////////////////////////////////////////////////////////////////////////////////
 
 `timescale 1ns / 1ps
 
 module joystick (
     input wire sysclk,
     input wire btn0,
+    input wire en,
     input wire spi_miso,
 
     output wire spi_cs_n,
@@ -11,16 +26,17 @@ module joystick (
     output wire spi_sck,
     output wire [3:0] led,
     output reg [9:0] x_value = 10'd512,
-    output reg [9:0] y_value = 10'd512
+    output reg [9:0] y_value = 10'd512,
+    output wire busy,
+    output reg received = 0
 );
 
     wire [39:0] rx_data;
-    wire busy;
     wire done;
 
     reg start = 0;
     reg [20:0] timer = 0;
-    reg received = 0;
+
 
     // SPI master
     spi_master spi_inst (
@@ -48,14 +64,15 @@ module joystick (
             received <= 0;
             x_value <= 10'd512;
             y_value <= 10'd512;
+            
         end
         else begin
             start <= 0;
 
             if (timer == 21'd1249999) begin
                 timer <= 0;
-
-                if (!busy)
+            
+                if (!busy && en)
                     start <= 1;
             end
             else

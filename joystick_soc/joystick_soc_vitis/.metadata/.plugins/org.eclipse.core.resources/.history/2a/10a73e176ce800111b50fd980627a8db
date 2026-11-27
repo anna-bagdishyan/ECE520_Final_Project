@@ -1,0 +1,50 @@
+
+#include "platform.h"
+#include "xil_printf.h"
+#include "xil_io.h"
+#include "sleep.h"
+
+// Custom joystick AXI peripheral base address
+#define JOYSTICK_BASE     0x43C00000
+
+// AXI register addresses
+#define FPGA_REV_REG      (JOYSTICK_BASE + 0x00)
+#define JOYSTICK_CTRL_REG (JOYSTICK_BASE + 0x04)
+#define JOYSTICK_STAT_REG (JOYSTICK_BASE + 0x08)
+#define JOYSTICK_X_REG    (JOYSTICK_BASE + 0x0C)
+#define JOYSTICK_Y_REG    (JOYSTICK_BASE + 0x10)
+
+int main()
+{
+    unsigned int revision;
+    unsigned int status;
+    unsigned int x_value;
+    unsigned int y_value;
+
+    init_platform();
+
+    xil_printf("Joystick AXI Peripheral\r\n");
+
+    // Read FPGA revision register
+    revision = Xil_In32(FPGA_REV_REG);
+    xil_printf("FPGA Revision: 0x%08x\r\n", revision);
+
+    // Enable joystick sampling
+    Xil_Out32(JOYSTICK_CTRL_REG, 1);
+
+    while (1)
+    {
+        // Read AXI registers
+        status = Xil_In32(JOYSTICK_STAT_REG);
+        x_value = Xil_In32(JOYSTICK_X_REG);
+        y_value = Xil_In32(JOYSTICK_Y_REG);
+
+        xil_printf("X: %d  Y: %d  Status: 0x%x\r\n",
+                   (int)x_value, (int)y_value, status);
+
+        usleep(200000); // Print every 200 ms
+    }
+
+    cleanup_platform();
+    return 0;
+}
