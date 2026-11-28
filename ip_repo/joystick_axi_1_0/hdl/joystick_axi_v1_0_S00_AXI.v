@@ -245,17 +245,17 @@
 	begin
 	  if ( S_AXI_ARESETN == 1'b0 )
 	    begin
-          slv_reg0 <= 32'h5200_0001;
-          slv_reg1 <= 32'd1;
-          slv_reg2 <= 0;
-          slv_reg3 <= 0;
-          slv_reg4 <= 0;
-          slv_reg5 <= 0;
-          slv_reg6 <= 32'd187500; // Base: 1.5 ms
-          slv_reg7 <= 32'd187500; // Shoulder: 1.5 ms
-          slv_reg8 <= 32'd187500; // Claw: 1.5 ms
-	      slv_reg9 <= 32'd187500; // Wrist servo: 1.5 ms
-	      slv_reg10 <= 0;
+	      slv_reg0 <= 32'd1;      // sampling enable for joystick
+          slv_reg1 <= 0;          // SPI status
+          slv_reg2 <= 0;          // joystick X
+          slv_reg3 <= 0;          // joystick Y
+          slv_reg4 <= 0;          // switches and BTN0
+          slv_reg5 <= 32'd187500; // Base: 1.5 ms
+          slv_reg6 <= 32'd187500; // Shoulder: 1.5 ms
+          slv_reg7 <= 32'd187500; // Claw: 1.5 ms
+          slv_reg8 <= 32'd187500; // Wrist: 1.5 ms
+          slv_reg9 <= 0;
+          slv_reg10 <= 0;
 	      slv_reg11 <= 0;
 	      slv_reg12 <= 0;
 	      slv_reg13 <= 0;
@@ -263,26 +263,33 @@
 	      slv_reg15 <= 0;
 	    end 
 	  else begin
-	    slv_reg2 <= {30'd0, joystick_received, joystick_busy};
-        slv_reg3 <= {22'd0, x_value};
-        slv_reg4 <= {22'd0, y_value};
-        slv_reg5 <= {27'd0, btn0, sw};
+	    slv_reg1 <= {30'd0, joystick_received, joystick_busy};
+        slv_reg2 <= {22'd0, x_value};
+        slv_reg3 <= {22'd0, y_value};
+        slv_reg4 <= {27'd0, btn0, sw};
         
 	    if (btn0) begin
+            slv_reg5 <= 32'd187500;
             slv_reg6 <= 32'd187500;
             slv_reg7 <= 32'd187500;
             slv_reg8 <= 32'd187500;
-            slv_reg9 <= 32'd187500;
         end
         else if (slv_reg_wren)
             begin
                 case ( axi_awaddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB] )
 	     
-	          4'h1:
+	          4'h0:
                 if (S_AXI_WSTRB[0])
-                    slv_reg1[0] <= S_AXI_WDATA[0];
+                    slv_reg0[0] <= S_AXI_WDATA[0];
 	          
 	          
+	          4'h5:
+	            for ( byte_index = 0; byte_index <= (C_S_AXI_DATA_WIDTH/8)-1; byte_index = byte_index+1 )
+	              if ( S_AXI_WSTRB[byte_index] == 1 ) begin
+	                // Respective byte enables are asserted as per write strobes 
+	                // Slave register 5
+	                slv_reg5[(byte_index*8) +: 8] <= S_AXI_WDATA[(byte_index*8) +: 8];
+	              end  
 	          4'h6:
 	            for ( byte_index = 0; byte_index <= (C_S_AXI_DATA_WIDTH/8)-1; byte_index = byte_index+1 )
 	              if ( S_AXI_WSTRB[byte_index] == 1 ) begin
@@ -310,7 +317,7 @@
 	                // Respective byte enables are asserted as per write strobes 
 	                // Slave register 9
 	                slv_reg9[(byte_index*8) +: 8] <= S_AXI_WDATA[(byte_index*8) +: 8];
-	              end  
+	          end  
 	          4'hA:
 	            for ( byte_index = 0; byte_index <= (C_S_AXI_DATA_WIDTH/8)-1; byte_index = byte_index+1 )
 	              if ( S_AXI_WSTRB[byte_index] == 1 ) begin
@@ -354,7 +361,7 @@
 	                slv_reg15[(byte_index*8) +: 8] <= S_AXI_WDATA[(byte_index*8) +: 8];
 	              end  
 	          default : begin
-	                      slv_reg1 <= slv_reg1;
+	                      slv_reg0 <= slv_reg0;
 	                      
 	                      slv_reg6 <= slv_reg6;
 	                      slv_reg7 <= slv_reg7;
@@ -524,28 +531,28 @@
     // Base servo
     pwm_comparator base_comparator (
         .counter(pwm_count),
-        .pulse_width(slv_reg6[21:0]),
+        .pulse_width(slv_reg5[21:0]),
         .servo_pwm(base_pwm)
     );
 
     // Shoulder servo
     pwm_comparator shoulder_comparator (
         .counter(pwm_count),
-        .pulse_width(slv_reg7[21:0]),
+        .pulse_width(slv_reg6[21:0]),
         .servo_pwm(shoulder_pwm)
     );
 
     // Claw servo
     pwm_comparator claw_comparator (
         .counter(pwm_count),
-        .pulse_width(slv_reg8[21:0]),
+        .pulse_width(slv_reg7[21:0]),
         .servo_pwm(claw_pwm)
     );
     
     // Wrist servo
     pwm_comparator wrist_comparator (
         .counter(pwm_count),
-        .pulse_width(slv_reg9[21:0]),
+        .pulse_width(slv_reg8[21:0]),
         .servo_pwm(wrist_pwm)
     );
     
@@ -555,7 +562,7 @@
     joystick joystick_inst (
         .sysclk(S_AXI_ACLK),
         .btn0(btn0 | ~S_AXI_ARESETN),
-        .en(slv_reg1[0]),
+        .en(slv_reg0[0]),
         .spi_miso(spi_miso),
         .spi_cs_n(spi_cs_n),
         .spi_mosi(spi_mosi),
